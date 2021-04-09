@@ -1,37 +1,33 @@
 package com.taobao.arthas.core.command.klass100;
 
 
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Set;
-import java.util.Collection;
-import java.util.List;
-
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.core.command.Constants;
-import com.taobao.arthas.core.command.model.SearchMethodModel;
+import com.taobao.arthas.core.command.model.ClassLoaderVO;
 import com.taobao.arthas.core.command.model.MethodVO;
 import com.taobao.arthas.core.command.model.RowAffectModel;
-import com.taobao.arthas.core.command.model.ClassLoaderVO;
+import com.taobao.arthas.core.command.model.SearchMethodModel;
 import com.taobao.arthas.core.shell.cli.Completion;
 import com.taobao.arthas.core.shell.cli.CompletionUtils;
 import com.taobao.arthas.core.shell.command.AnnotatedCommand;
 import com.taobao.arthas.core.shell.command.CommandProcess;
-import com.taobao.arthas.core.util.ClassUtils;
 import com.taobao.arthas.core.util.ClassLoaderUtils;
+import com.taobao.arthas.core.util.ClassUtils;
 import com.taobao.arthas.core.util.SearchUtils;
 import com.taobao.arthas.core.util.StringUtils;
 import com.taobao.arthas.core.util.affect.RowAffect;
 import com.taobao.arthas.core.util.matcher.Matcher;
 import com.taobao.arthas.core.util.matcher.RegexMatcher;
 import com.taobao.arthas.core.util.matcher.WildcardMatcher;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
+
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 展示方法信息
@@ -107,7 +103,7 @@ public class SearchMethodCommand extends AnnotatedCommand {
 
         Instrumentation inst = process.session().getInstrumentation();
         Matcher<String> methodNameMatcher = methodNameMatcher();
-        
+
         if (hashCode == null && classLoaderClass != null) {
             List<ClassLoader> matchedClassLoaders = ClassLoaderUtils.getClassLoaderByClassName(inst, classLoaderClass);
             if (matchedClassLoaders.size() == 1) {
@@ -129,7 +125,7 @@ public class SearchMethodCommand extends AnnotatedCommand {
         Set<Class<?>> matchedClasses = SearchUtils.searchClass(inst, classPattern, isRegEx, hashCode);
 
         if (numberOfLimit > 0 && matchedClasses.size() > numberOfLimit) {
-            process.end(-1, "The number of matching classes is greater than : " + numberOfLimit+". \n" +
+            process.end(-1, "The number of matching classes is greater than : " + numberOfLimit + ". \n" +
                     "Please specify a more accurate 'class-patten' or use the parameter '-n' to change the maximum number of matching classes.");
             return;
         }
@@ -161,7 +157,6 @@ public class SearchMethodCommand extends AnnotatedCommand {
                 return;
             }
         }
-
         process.appendResult(new RowAffectModel(affect));
         process.end();
     }

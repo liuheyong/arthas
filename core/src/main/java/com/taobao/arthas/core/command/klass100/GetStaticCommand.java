@@ -5,35 +5,23 @@ import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.core.command.Constants;
 import com.taobao.arthas.core.command.express.ExpressException;
 import com.taobao.arthas.core.command.express.ExpressFactory;
-import com.taobao.arthas.core.command.model.ClassVO;
-import com.taobao.arthas.core.command.model.ClassLoaderVO;
-import com.taobao.arthas.core.command.model.GetStaticModel;
-import com.taobao.arthas.core.command.model.MessageModel;
-import com.taobao.arthas.core.command.model.RowAffectModel;
+import com.taobao.arthas.core.command.model.*;
 import com.taobao.arthas.core.shell.command.AnnotatedCommand;
 import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.shell.command.ExitStatus;
-import com.taobao.arthas.core.util.ClassUtils;
-import com.taobao.arthas.core.util.ClassLoaderUtils;
-import com.taobao.arthas.core.util.CommandUtils;
-import com.taobao.arthas.core.util.SearchUtils;
-import com.taobao.arthas.core.util.StringUtils;
+import com.taobao.arthas.core.util.*;
 import com.taobao.arthas.core.util.affect.RowAffect;
 import com.taobao.arthas.core.util.matcher.Matcher;
 import com.taobao.arthas.core.util.matcher.RegexMatcher;
 import com.taobao.arthas.core.util.matcher.WildcardMatcher;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.Collection;
 
 /**
  * @author diecui1202 on 2017/9/27.
@@ -42,9 +30,9 @@ import java.util.Collection;
 @Name("getstatic")
 @Summary("Show the static field of a class")
 @Description(Constants.EXAMPLE +
-             "  getstatic demo.MathGame random\n" +
-             "  getstatic -c 39eb305e org.apache.log4j.LogManager DEFAULT_CONFIGURATION_FILE\n" +
-             Constants.WIKI + Constants.WIKI_HOME + "getstatic")
+        "  getstatic demo.MathGame random\n" +
+        "  getstatic -c 39eb305e org.apache.log4j.LogManager DEFAULT_CONFIGURATION_FILE\n" +
+        Constants.WIKI + Constants.WIKI_HOME + "getstatic")
 public class GetStaticCommand extends AnnotatedCommand {
 
     private static final Logger logger = LoggerFactory.getLogger(GetStaticCommand.class);
@@ -136,7 +124,7 @@ public class GetStaticCommand extends AnnotatedCommand {
             }
             process.appendResult(new RowAffectModel(affect));
             CommandUtils.end(process, status);
-        } catch (Throwable e){
+        } catch (Throwable e) {
             logger.error("processing error", e);
             process.appendResult(new RowAffectModel(affect));
             process.end(-1, "processing error");
@@ -144,7 +132,7 @@ public class GetStaticCommand extends AnnotatedCommand {
     }
 
     private ExitStatus processExactMatch(CommandProcess process, RowAffect affect, Instrumentation inst,
-                                   Set<Class<?>> matchedClasses) {
+                                         Set<Class<?>> matchedClasses) {
         Matcher<String> fieldNameMatcher = fieldNameMatcher();
 
         Class<?> clazz = matchedClasses.iterator().next();
@@ -171,11 +159,11 @@ public class GetStaticCommand extends AnnotatedCommand {
             } catch (IllegalAccessException e) {
                 logger.warn("getstatic: failed to get static value, class: {}, field: {} ", clazz, field.getName(), e);
                 process.appendResult(new MessageModel("Failed to get static, exception message: " + e.getMessage()
-                              + ", please check $HOME/logs/arthas/arthas.log for more details. "));
+                        + ", please check $HOME/logs/arthas/arthas.log for more details. "));
             } catch (ExpressException e) {
                 logger.warn("getstatic: failed to get express value, class: {}, field: {}, express: {}", clazz, field.getName(), express, e);
                 process.appendResult(new MessageModel("Failed to get static, exception message: " + e.getMessage()
-                              + ", please check $HOME/logs/arthas/arthas.log for more details. "));
+                        + ", please check $HOME/logs/arthas/arthas.log for more details. "));
             } finally {
                 found = true;
             }
@@ -195,11 +183,11 @@ public class GetStaticCommand extends AnnotatedCommand {
 //        process.write("\n Found more than one class for: " + classPattern + ", Please use " + RenderUtil.render(usage, process.width()));
         //TODO support message style
         String usage = "getstatic -c <hashcode> " + classPattern + " " + fieldPattern;
-        process.appendResult(new MessageModel("Found more than one class for: " + classPattern + ", Please use: "+usage));
+        process.appendResult(new MessageModel("Found more than one class for: " + classPattern + ", Please use: " + usage));
 
         List<ClassVO> matchedClassVOs = ClassUtils.createClassVOList(matchedClasses);
         process.appendResult(new GetStaticModel(matchedClassVOs));
-        return ExitStatus.failure(-1, "Found more than one class for: " + classPattern + ", Please use: "+usage);
+        return ExitStatus.failure(-1, "Found more than one class for: " + classPattern + ", Please use: " + usage);
     }
 
     private Matcher<String> fieldNameMatcher() {

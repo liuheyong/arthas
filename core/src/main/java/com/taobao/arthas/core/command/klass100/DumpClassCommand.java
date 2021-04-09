@@ -3,38 +3,20 @@ package com.taobao.arthas.core.command.klass100;
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.core.command.Constants;
-import com.taobao.arthas.core.command.model.ClassVO;
-import com.taobao.arthas.core.command.model.ClassLoaderVO;
-import com.taobao.arthas.core.command.model.DumpClassModel;
-import com.taobao.arthas.core.command.model.DumpClassVO;
-import com.taobao.arthas.core.command.model.MessageModel;
-import com.taobao.arthas.core.command.model.RowAffectModel;
+import com.taobao.arthas.core.command.model.*;
 import com.taobao.arthas.core.shell.cli.Completion;
 import com.taobao.arthas.core.shell.cli.CompletionUtils;
 import com.taobao.arthas.core.shell.command.AnnotatedCommand;
 import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.shell.command.ExitStatus;
-import com.taobao.arthas.core.util.ClassUtils;
-import com.taobao.arthas.core.util.ClassLoaderUtils;
-import com.taobao.arthas.core.util.CommandUtils;
-import com.taobao.arthas.core.util.InstrumentationUtils;
-import com.taobao.arthas.core.util.SearchUtils;
+import com.taobao.arthas.core.util.*;
 import com.taobao.arthas.core.util.affect.RowAffect;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.DefaultValue;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
+import java.util.*;
 
 
 /**
@@ -78,7 +60,7 @@ public class DumpClassCommand extends AnnotatedCommand {
     public void setClassLoaderClass(String classLoaderClass) {
         this.classLoaderClass = classLoaderClass;
     }
-    
+
     @Option(shortName = "E", longName = "regex", flag = true)
     @Description("Enable regular expression to match (wildcard matching by default)")
     public void setRegEx(boolean regEx) {
@@ -141,7 +123,7 @@ public class DumpClassCommand extends AnnotatedCommand {
             }
             process.appendResult(new RowAffectModel(effect));
             CommandUtils.end(process, status);
-        } catch (Throwable e){
+        } catch (Throwable e) {
             logger.error("processing error", e);
             process.end(-1, "processing error");
         }

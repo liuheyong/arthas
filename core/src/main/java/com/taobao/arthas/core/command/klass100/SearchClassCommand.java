@@ -1,33 +1,21 @@
 package com.taobao.arthas.core.command.klass100;
 
 
-import java.lang.instrument.Instrumentation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import com.taobao.arthas.core.command.Constants;
 import com.taobao.arthas.core.command.model.ClassDetailVO;
-import com.taobao.arthas.core.command.model.SearchClassModel;
-import com.taobao.arthas.core.command.model.RowAffectModel;
 import com.taobao.arthas.core.command.model.ClassLoaderVO;
+import com.taobao.arthas.core.command.model.RowAffectModel;
+import com.taobao.arthas.core.command.model.SearchClassModel;
 import com.taobao.arthas.core.shell.cli.Completion;
 import com.taobao.arthas.core.shell.cli.CompletionUtils;
 import com.taobao.arthas.core.shell.command.AnnotatedCommand;
 import com.taobao.arthas.core.shell.command.CommandProcess;
-import com.taobao.arthas.core.util.ClassUtils;
-import com.taobao.arthas.core.util.ClassLoaderUtils;
-import com.taobao.arthas.core.util.ResultUtils;
-import com.taobao.arthas.core.util.SearchUtils;
-import com.taobao.arthas.core.util.StringUtils;
+import com.taobao.arthas.core.util.*;
 import com.taobao.arthas.core.util.affect.RowAffect;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
+
+import java.lang.instrument.Instrumentation;
+import java.util.*;
 
 /**
  * 展示类信息
@@ -135,7 +123,7 @@ public class SearchClassCommand extends AnnotatedCommand {
 
         if (isDetail) {
             if (numberOfLimit > 0 && matchedClasses.size() > numberOfLimit) {
-                process.end(-1, "The number of matching classes is greater than : " + numberOfLimit+". \n" +
+                process.end(-1, "The number of matching classes is greater than : " + numberOfLimit + ". \n" +
                         "Please specify a more accurate 'class-patten' or use the parameter '-n' to change the maximum number of matching classes.");
                 return;
             }

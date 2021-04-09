@@ -1,23 +1,5 @@
 package com.taobao.arthas.core.command.klass100;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.alibaba.deps.org.objectweb.asm.ClassReader;
@@ -34,15 +16,19 @@ import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.util.ClassLoaderUtils;
 import com.taobao.arthas.core.util.ClassUtils;
 import com.taobao.arthas.core.util.SearchUtils;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.DefaultValue;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 
  * Retransform Classes.
  *
  * @author hengyunabc 2021-01-05
@@ -65,7 +51,7 @@ public class RetransformCommand extends AnnotatedCommand {
 
     private static volatile List<RetransformEntry> retransformEntries = new ArrayList<RetransformEntry>();
     private static volatile ClassFileTransformer transformer = null;
-    
+
     private String hashCode;
     private String classLoaderClass;
 
@@ -80,6 +66,59 @@ public class RetransformCommand extends AnnotatedCommand {
     private String classPattern;
 
     private int limit;
+
+    private static void initTransformer() {
+        if (transformer != null) {
+            return;
+        } else {
+            synchronized (RetransformCommand.class) {
+                if (transformer == null) {
+                    transformer = new RetransformClassFileTransformer();
+                    TransformerManager transformerManager = ArthasBootstrap.getInstance().getTransformerManager();
+                    transformerManager.addRetransformer(transformer);
+                }
+            }
+        }
+    }
+
+    private static String readClassName(final byte[] bytes) {
+        return new ClassReader(bytes).getClassName().replace('/', '.');
+    }
+
+    public static synchronized void addRetransformEntry(List<RetransformEntry> retransformEntryList) {
+        List<RetransformEntry> tmp = new ArrayList<RetransformEntry>();
+        tmp.addAll(retransformEntries);
+        tmp.addAll(retransformEntryList);
+        Collections.sort(tmp, new Comparator<RetransformEntry>() {
+            @Override
+            public int compare(RetransformEntry entry1, RetransformEntry entry2) {
+                return entry1.getId() - entry2.getId();
+            }
+        });
+        retransformEntries = tmp;
+    }
+
+    public static synchronized RetransformEntry deleteRetransformEntry(int id) {
+        RetransformEntry result = null;
+        List<RetransformEntry> tmp = new ArrayList<RetransformEntry>();
+        for (RetransformEntry entry : retransformEntries) {
+            if (entry.getId() != id) {
+                tmp.add(entry);
+            } else {
+                result = entry;
+            }
+        }
+        retransformEntries = tmp;
+        return result;
+    }
+
+    public static List<RetransformEntry> allRetransformEntries() {
+        return retransformEntries;
+    }
+
+    public static synchronized void deleteAllRetransformEntry() {
+        retransformEntries = new ArrayList<RetransformEntry>();
+    }
 
     @Option(shortName = "l", longName = "list", flag = true)
     @Description("list all retransform entry.")
@@ -128,20 +167,6 @@ public class RetransformCommand extends AnnotatedCommand {
     @DefaultValue("50")
     public void setLimit(int limit) {
         this.limit = limit;
-    }
-
-    private static void initTransformer() {
-        if (transformer != null) {
-            return;
-        } else {
-            synchronized (RetransformCommand.class) {
-                if (transformer == null) {
-                    transformer = new RetransformClassFileTransformer();
-                    TransformerManager transformerManager = ArthasBootstrap.getInstance().getTransformerManager();
-                    transformerManager.addRetransformer(transformer);
-                }
-            }
-        }
     }
 
     @Override
@@ -303,10 +328,6 @@ public class RetransformCommand extends AnnotatedCommand {
 
     }
 
-    private static String readClassName(final byte[] bytes) {
-        return new ClassReader(bytes).getClassName().replace('/', '.');
-    }
-
     @Override
     public void complete(Completion completion) {
         List<CliToken> tokens = completion.lineTokens();
@@ -404,45 +425,10 @@ public class RetransformCommand extends AnnotatedCommand {
         }
     }
 
-    public static synchronized void addRetransformEntry(List<RetransformEntry> retransformEntryList) {
-        List<RetransformEntry> tmp = new ArrayList<RetransformEntry>();
-        tmp.addAll(retransformEntries);
-        tmp.addAll(retransformEntryList);
-        Collections.sort(tmp, new Comparator<RetransformEntry>() {
-            @Override
-            public int compare(RetransformEntry entry1, RetransformEntry entry2) {
-                return entry1.getId() - entry2.getId();
-            }
-        });
-        retransformEntries = tmp;
-    }
-
-    public static synchronized RetransformEntry deleteRetransformEntry(int id) {
-        RetransformEntry result = null;
-        List<RetransformEntry> tmp = new ArrayList<RetransformEntry>();
-        for (RetransformEntry entry : retransformEntries) {
-            if (entry.getId() != id) {
-                tmp.add(entry);
-            } else {
-                result = entry;
-            }
-        }
-        retransformEntries = tmp;
-        return result;
-    }
-
-    public static List<RetransformEntry> allRetransformEntries() {
-        return retransformEntries;
-    }
-
-    public static synchronized void deleteAllRetransformEntry() {
-        retransformEntries = new ArrayList<RetransformEntry>();
-    }
-
     static class RetransformClassFileTransformer implements ClassFileTransformer {
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                                ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
             if (className == null) {
                 return null;

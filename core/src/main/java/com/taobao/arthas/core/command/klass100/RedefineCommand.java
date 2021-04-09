@@ -1,33 +1,25 @@
 package com.taobao.arthas.core.command.klass100;
 
+import com.alibaba.arthas.deps.org.slf4j.Logger;
+import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
+import com.alibaba.deps.org.objectweb.asm.ClassReader;
+import com.taobao.arthas.core.command.Constants;
+import com.taobao.arthas.core.command.model.ClassLoaderVO;
+import com.taobao.arthas.core.command.model.RedefineModel;
+import com.taobao.arthas.core.shell.cli.Completion;
+import com.taobao.arthas.core.shell.cli.CompletionUtils;
+import com.taobao.arthas.core.shell.command.AnnotatedCommand;
+import com.taobao.arthas.core.shell.command.CommandProcess;
+import com.taobao.arthas.core.util.ClassLoaderUtils;
+import com.taobao.arthas.core.util.ClassUtils;
+import com.taobao.middleware.cli.annotations.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
-
-import com.alibaba.deps.org.objectweb.asm.ClassReader;
-import com.alibaba.arthas.deps.org.slf4j.Logger;
-import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
-import com.taobao.arthas.core.command.Constants;
-import com.taobao.arthas.core.command.model.RedefineModel;
-import com.taobao.arthas.core.command.model.ClassLoaderVO;
-import com.taobao.arthas.core.shell.cli.Completion;
-import com.taobao.arthas.core.shell.cli.CompletionUtils;
-import com.taobao.arthas.core.shell.command.AnnotatedCommand;
-import com.taobao.arthas.core.shell.command.CommandProcess;
-import com.taobao.arthas.core.util.ClassUtils;
-import com.taobao.arthas.core.util.ClassLoaderUtils;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import java.util.*;
 
 /**
  * Redefine Classes.
@@ -38,10 +30,10 @@ import com.taobao.middleware.cli.annotations.Summary;
 @Name("redefine")
 @Summary("Redefine classes. @see Instrumentation#redefineClasses(ClassDefinition...)")
 @Description(Constants.EXAMPLE +
-                "  redefine /tmp/Test.class\n" +
-                "  redefine -c 327a647b /tmp/Test.class /tmp/Test\\$Inner.class \n" +
-                "  redefine --classLoaderClass 'sun.misc.Launcher$AppClassLoader' /tmp/Test.class \n" +
-                Constants.WIKI + Constants.WIKI_HOME + "redefine")
+        "  redefine /tmp/Test.class\n" +
+        "  redefine -c 327a647b /tmp/Test.class /tmp/Test\\$Inner.class \n" +
+        "  redefine --classLoaderClass 'sun.misc.Launcher$AppClassLoader' /tmp/Test.class \n" +
+        Constants.WIKI + Constants.WIKI_HOME + "redefine")
 public class RedefineCommand extends AnnotatedCommand {
     private static final Logger logger = LoggerFactory.getLogger(RedefineCommand.class);
     private static final int MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -50,6 +42,10 @@ public class RedefineCommand extends AnnotatedCommand {
     private String classLoaderClass;
 
     private List<String> paths;
+
+    private static String readClassName(final byte[] bytes) {
+        return new ClassReader(bytes).getClassName().replace("/", ".");
+    }
 
     @Option(shortName = "c", longName = "classloader")
     @Description("classLoader hashcode")
@@ -102,8 +98,8 @@ public class RedefineCommand extends AnnotatedCommand {
                 bytesMap.put(clazzName, bytes);
 
             } catch (Exception e) {
-                logger.warn("load class file failed: "+path, e);
-                process.end(-1, "load class file failed: " +path+", error: " + e);
+                logger.warn("load class file failed: " + path, e);
+                process.end(-1, "load class file failed: " + path + ", error: " + e);
                 return;
             } finally {
                 if (f != null) {
@@ -142,7 +138,7 @@ public class RedefineCommand extends AnnotatedCommand {
                         return;
                     }
                 }
-                
+
                 ClassLoader classLoader = clazz.getClassLoader();
                 if (classLoader != null && hashCode != null && !Integer.toHexString(classLoader.hashCode()).equals(hashCode)) {
                     continue;
@@ -167,10 +163,6 @@ public class RedefineCommand extends AnnotatedCommand {
             process.end(-1, message);
         }
 
-    }
-
-    private static String readClassName(final byte[] bytes) {
-        return new ClassReader(bytes).getClassName().replace("/", ".");
     }
 
     @Override

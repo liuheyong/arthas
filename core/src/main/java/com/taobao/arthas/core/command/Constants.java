@@ -20,29 +20,26 @@ public interface Constants {
             "        isReturn : the method ended by return\n" +
             "         isThrow : the method ended by throwing exception\n" +
             "           #cost : the execution time in ms of method invocation";
-
     String EXAMPLE = "\nEXAMPLES:\n";
 
     String WIKI = "\nWIKI:\n";
 
     String WIKI_HOME = "  https://arthas.aliyun.com/doc/";
 
-    String EXPRESS_EXAMPLES =   "Examples:\n" +
-                                "  params\n" +
-                                "  params[0]\n" +
-                                "  'params[0]+params[1]'\n" +
-                                "  '{params[0], target, returnObj}'\n" +
-                                "  returnObj\n" +
-                                "  throwExp\n" +
-                                "  target\n" +
-                                "  clazz\n" +
-                                "  method\n";
-
-    String CONDITION_EXPRESS =  "Conditional expression in ognl style, for example:\n" +
-                                "  TRUE  : 1==1\n" +
-                                "  TRUE  : true\n" +
-                                "  FALSE : false\n" +
-                                "  TRUE  : 'params.length>=0'\n" +
-                                "  FALSE : 1==2\n";
-
+    String EXPRESS_EXAMPLES = "Examples:\n" +
+            "  params\n" +
+            "  params[0]\n" +
+            "  'params[0]+params[1]'\n" +
+            "  '{params[0], target, returnObj}'\n" +
+            "  returnObj\n" +
+            "  throwExp\n" +
+            "  target\n" +
+            "  clazz\n" +
+            "  method\n";
+    String CONDITION_EXPRESS = "Conditional expression in ognl style, for example:\n" +
+            "  TRUE  : 1==1\n" +
+            "  TRUE  : true\n" +
+            "  FALSE : false\n" +
+            "  TRUE  : 'params.length>=0'\n" +
+            "  FALSE : 1==2\n";
 }

@@ -4,38 +4,19 @@ import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.common.Pair;
 import com.taobao.arthas.core.command.Constants;
-import com.taobao.arthas.core.command.model.ClassVO;
-import com.taobao.arthas.core.command.model.ClassLoaderVO;
-import com.taobao.arthas.core.command.model.JadModel;
-import com.taobao.arthas.core.command.model.MessageModel;
-import com.taobao.arthas.core.command.model.RowAffectModel;
+import com.taobao.arthas.core.command.model.*;
 import com.taobao.arthas.core.shell.cli.Completion;
 import com.taobao.arthas.core.shell.cli.CompletionUtils;
 import com.taobao.arthas.core.shell.command.AnnotatedCommand;
 import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.shell.command.ExitStatus;
-import com.taobao.arthas.core.util.ClassUtils;
-import com.taobao.arthas.core.util.ClassLoaderUtils;
-import com.taobao.arthas.core.util.CommandUtils;
-import com.taobao.arthas.core.util.Decompiler;
-import com.taobao.arthas.core.util.InstrumentationUtils;
-import com.taobao.arthas.core.util.SearchUtils;
+import com.taobao.arthas.core.util.*;
 import com.taobao.arthas.core.util.affect.RowAffect;
-import com.taobao.middleware.cli.annotations.Argument;
-import com.taobao.middleware.cli.annotations.DefaultValue;
-import com.taobao.middleware.cli.annotations.Description;
-import com.taobao.middleware.cli.annotations.Name;
-import com.taobao.middleware.cli.annotations.Option;
-import com.taobao.middleware.cli.annotations.Summary;
+import com.taobao.middleware.cli.annotations.*;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.Collection;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -140,7 +121,7 @@ public class JadCommand extends AnnotatedCommand {
                 return;
             }
         }
-        
+
         Set<Class<?>> matchedClasses = SearchUtils.searchClassOnly(inst, classPattern, isRegEx, code);
 
         try {
@@ -151,8 +132,8 @@ public class JadCommand extends AnnotatedCommand {
                 status = processMatches(process, matchedClasses);
             } else { // matchedClasses size is 1
                 // find inner classes.
-                Set<Class<?>> withInnerClasses = SearchUtils.searchClassOnly(inst,  matchedClasses.iterator().next().getName() + "$*", false, code);
-                if(withInnerClasses.isEmpty()) {
+                Set<Class<?>> withInnerClasses = SearchUtils.searchClassOnly(inst, matchedClasses.iterator().next().getName() + "$*", false, code);
+                if (withInnerClasses.isEmpty()) {
                     withInnerClasses = matchedClasses;
                 }
                 status = processExactMatch(process, affect, inst, matchedClasses, withInnerClasses);
@@ -161,7 +142,7 @@ public class JadCommand extends AnnotatedCommand {
                 process.appendResult(new RowAffectModel(affect));
             }
             CommandUtils.end(process, status);
-        } catch (Throwable e){
+        } catch (Throwable e) {
             logger.error("processing error", e);
             process.end(-1, "processing error");
         }
@@ -179,7 +160,7 @@ public class JadCommand extends AnnotatedCommand {
             Map<Class<?>, File> classFiles = transformer.getDumpResult();
             File classFile = classFiles.get(c);
 
-            Pair<String,NavigableMap<Integer,Integer>> decompileResult = Decompiler.decompileWithMappings(classFile.getAbsolutePath(), methodName, hideUnicode, lineNumber);
+            Pair<String, NavigableMap<Integer, Integer>> decompileResult = Decompiler.decompileWithMappings(classFile.getAbsolutePath(), methodName, hideUnicode, lineNumber);
             String source = decompileResult.getFirst();
             if (source != null) {
                 source = pattern.matcher(source).replaceAll("");

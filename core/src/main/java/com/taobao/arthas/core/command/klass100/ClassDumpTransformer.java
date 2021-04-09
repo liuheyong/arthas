@@ -8,7 +8,6 @@ import com.taobao.arthas.core.util.LogUtil;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +39,7 @@ class ClassDumpTransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer)
-            throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         if (classesToEnhance.contains(classBeingRedefined)) {
             dumpClassIfNecessary(classBeingRedefined, classfileBuffer);
         }
@@ -58,7 +56,7 @@ class ClassDumpTransformer implements ClassFileTransformer {
         String classDumpDir = "classdump";
 
         // 创建类所在的包路径
-        File dumpDir = null;
+        File dumpDir;
         if (directory != null) {
             dumpDir = directory;
         } else {
