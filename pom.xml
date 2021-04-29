@@ -76,11 +76,11 @@
     <properties>
         <revision>3.5.1-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
         <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
         <maven-invoker-plugin.version>3.0.0</maven-invoker-plugin.version>
-        <jacoco.skip>${skipTests}</jacoco.skip>
+        <jacoco.skip>true</jacoco.skip>
         <project.build.outputTimestamp>2020-09-27T15:10:43Z</project.build.outputTimestamp>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <netty.version>4.1.59.Final</netty.version>
@@ -166,7 +166,6 @@
                 <version>2.28.2</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
@@ -192,25 +191,21 @@
                 <artifactId>netty-codec-http</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
                 <version>2.14.6</version>
             </dependency>
-
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
                 <version>1.10.18</version>
             </dependency>
-
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy-agent</artifactId>
                 <version>1.10.18</version>
             </dependency>
-
             <dependency>
                 <groupId>org.zeroturnaround</groupId>
                 <artifactId>zt-zip</artifactId>
@@ -266,27 +261,25 @@
                 </plugins>
             </build>
         </profile>
-
-        <profile>
-            <!-- ci test -->
-            <id>jdk12</id>
-            <activation>
-                <jdk>[12,)</jdk>
-                <property>
-                    <name>JAVA8_HOME</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.sun</groupId>
-                    <artifactId>tools</artifactId>
-                    <version>1.6.0</version>
-                    <scope>system</scope>
-                    <systemPath>${JAVA8_HOME}/lib/tools.jar</systemPath>
-                </dependency>
-            </dependencies>
-        </profile>
-
+        <!--<profile>-->
+        <!--    &lt;!&ndash; ci test &ndash;&gt;-->
+        <!--    <id>jdk12</id>-->
+        <!--    <activation>-->
+        <!--        <jdk>[12,)</jdk>-->
+        <!--        <property>-->
+        <!--            <name>JAVA8_HOME</name>-->
+        <!--        </property>-->
+        <!--    </activation>-->
+        <!--    <dependencies>-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.sun</groupId>-->
+        <!--            <artifactId>tools</artifactId>-->
+        <!--            <version>1.6.0</version>-->
+        <!--            <scope>system</scope>-->
+        <!--            <systemPath>${JAVA8_HOME}/lib/tools.jar</systemPath>-->
+        <!--        </dependency>-->
+        <!--    </dependencies>-->
+        <!--</profile>-->
         <profile>
             <id>full</id>
             <build>
@@ -313,7 +306,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>release</id>
             <activation>
@@ -341,10 +333,18 @@
             </build>
         </profile>
     </profiles>
-
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -420,7 +420,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -435,7 +434,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -449,7 +447,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -474,7 +471,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
