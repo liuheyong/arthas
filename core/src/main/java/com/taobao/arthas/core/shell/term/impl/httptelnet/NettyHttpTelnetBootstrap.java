@@ -63,33 +63,27 @@ public class NettyHttpTelnetBootstrap extends TelnetBootstrap {
                         .handler(new LoggingHandler(LogLevel.INFO))
                         .childHandler(new ChannelInitializer<SocketChannel>() {
                             @Override
-                            public void initChannel(SocketChannel ch) throws Exception {
+                            public void initChannel(SocketChannel ch) {
                                 ch.pipeline().addLast(new ProtocolDetectHandler(channelGroup, handlerFactory, factory, workerGroup, httpSessionManager));
                             }
                         });
 
-        boostrap.bind(getHost(), getPort()).addListener(new GenericFutureListener<Future<? super Void>>() {
-            @Override
-            public void operationComplete(Future<? super Void> future) throws Exception {
-                if (future.isSuccess()) {
-                    doneHandler.accept(null);
-                } else {
-                    doneHandler.accept(future.cause());
-                }
+        boostrap.bind(getHost(), getPort()).addListener(future -> {
+            if (future.isSuccess()) {
+                doneHandler.accept(null);
+            } else {
+                doneHandler.accept(future.cause());
             }
         });
     }
 
     @Override
     public void stop(final Consumer<Throwable> doneHandler) {
-        GenericFutureListener<Future<Object>> adapter = new GenericFutureListener<Future<Object>>() {
-            @Override
-            public void operationComplete(Future<Object> future) throws Exception {
-                try {
-                    doneHandler.accept(future.cause());
-                } finally {
-                    group.shutdownGracefully();
-                }
+        GenericFutureListener<Future<Object>> adapter = future -> {
+            try {
+                doneHandler.accept(future.cause());
+            } finally {
+                group.shutdownGracefully();
             }
         };
         channelGroup.close().addListener(adapter);

@@ -21,8 +21,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.11</source>
+                    <target>1.11</target>
                     <encoding>UTF-8</encoding>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
@@ -84,26 +84,26 @@
             </plugin>
 
              <!-- 把原来的logger command相关类还原，因为被shade plugin relocation修改了package -->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <tasks>
-                                <unzip src="${project.build.directory}/${project.build.finalName}-shade.${project.packaging}" dest="${project.build.directory}/tmp_out" />
-                                <copy overwrite="true" todir="${project.build.directory}/tmp_out/com/taobao/arthas/core/command/logger">
-                                    <fileset dir="${project.build.directory}/classes/com/taobao/arthas/core/command/logger" />
-                                </copy>
-                                <zip basedir="${project.build.directory}/tmp_out" destfile="${project.build.directory}/${project.build.finalName}-shade.${project.packaging}" />
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+            <!--    <artifactId>maven-antrun-plugin</artifactId>-->
+            <!--    <executions>-->
+            <!--        <execution>-->
+            <!--            <phase>package</phase>-->
+            <!--            <configuration>-->
+            <!--                <tasks>-->
+            <!--                    <unzip src="${project.build.directory}/${project.build.finalName}-shade.${project.packaging}" dest="${project.build.directory}/tmp_out" />-->
+            <!--                    <copy overwrite="true" todir="${project.build.directory}/tmp_out/com/taobao/arthas/core/command/logger">-->
+            <!--                        <fileset dir="${project.build.directory}/classes/com/taobao/arthas/core/command/logger" />-->
+            <!--                    </copy>-->
+            <!--                    <zip basedir="${project.build.directory}/tmp_out" destfile="${project.build.directory}/${project.build.finalName}-shade.${project.packaging}" />-->
+            <!--                </tasks>-->
+            <!--            </configuration>-->
+            <!--            <goals>-->
+            <!--                <goal>run</goal>-->
+            <!--            </goals>-->
+            <!--        </execution>-->
+            <!--    </executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

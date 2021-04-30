@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 
 /**
- *
  * <pre>
  * FINEST  -> TRACE
  * FINER   -> DEBUG
@@ -15,18 +14,12 @@ import java.util.regex.Matcher;
  * SEVERE  -> ERROR
  * </pre>
  *
- * @see org.slf4j.bridge.SLF4JBridgeHandler
  * @author hengyunabc 2017-05-03
- *
+ * @see org.slf4j.bridge.SLF4JBridgeHandler
  */
 public abstract class AnsiLog {
 
-    static boolean enableColor;
-
-    public static java.util.logging.Level LEVEL = java.util.logging.Level.CONFIG;
-
     private static final String RESET = "\033[0m";
-
     private static final int DEFAULT = 39;
     private static final int BLACK = 30;
     private static final int RED = 31;
@@ -36,21 +29,18 @@ public abstract class AnsiLog {
     private static final int MAGENTA = 35;
     private static final int CYAN = 36;
     private static final int WHITE = 37;
-
     private static final String TRACE_PREFIX = "[TRACE] ";
     private static final String TRACE_COLOR_PREFIX = "[" + colorStr("TRACE", GREEN) + "] ";
-
     private static final String DEBUG_PREFIX = "[DEBUG] ";
     private static final String DEBUG_COLOR_PREFIX = "[" + colorStr("DEBUG", GREEN) + "] ";
-
     private static final String INFO_PREFIX = "[INFO] ";
     private static final String INFO_COLOR_PREFIX = "[" + colorStr("INFO", GREEN) + "] ";
-
     private static final String WARN_PREFIX = "[WARN] ";
     private static final String WARN_COLOR_PREFIX = "[" + colorStr("WARN", YELLOW) + "] ";
-
     private static final String ERROR_PREFIX = "[ERROR] ";
     private static final String ERROR_COLOR_PREFIX = "[" + colorStr("ERROR", RED) + "] ";
+    public static java.util.logging.Level LEVEL = java.util.logging.Level.CONFIG;
+    static boolean enableColor;
 
     static {
         if (System.console() != null) {
@@ -76,9 +66,9 @@ public abstract class AnsiLog {
     /**
      * set logger Level
      *
-     * @see java.util.logging.Level
      * @param level
      * @return
+     * @see java.util.logging.Level
      */
     public static Level level(Level level) {
         Level old = LEVEL;

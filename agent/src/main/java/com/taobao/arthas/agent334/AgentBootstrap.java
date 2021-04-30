@@ -76,7 +76,7 @@ public class AgentBootstrap {
     }
 
     private static ClassLoader getClassLoader(Instrumentation inst, File arthasCoreJarFile) throws Throwable {
-        // 构造自定义的类加载器，尽量减少Arthas对现有工程的侵蚀
+        // TODO  构造自定义的类加载器，尽量减少Arthas对现有工程的侵蚀
         return loadOrDefineClassLoader(arthasCoreJarFile);
     }
 
@@ -145,17 +145,13 @@ public class AgentBootstrap {
              */
             final ClassLoader agentLoader = getClassLoader(inst, arthasCoreJarFile);
 
-            Thread bindingThread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        bind(inst, agentLoader, agentArgs);
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace(ps);
-                    }
+            Thread bindingThread = new Thread(() -> {
+                try {
+                    bind(inst, agentLoader, agentArgs);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace(ps);
                 }
-            };
-
+            });
             bindingThread.setName("arthas-binding-thread");
             bindingThread.start();
             bindingThread.join();

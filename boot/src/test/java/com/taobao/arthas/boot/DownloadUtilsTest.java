@@ -1,17 +1,18 @@
 package com.taobao.arthas.boot;
 
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 public class DownloadUtilsTest {
+
     @Rule
     public TemporaryFolder rootFolder = new TemporaryFolder();
 
