@@ -42,10 +42,12 @@ public class NettyHttpTelnetBootstrap extends TelnetBootstrap {
         this.httpSessionManager = httpSessionManager;
     }
 
+    @Override
     public NettyHttpTelnetBootstrap setHost(String host) {
         return (NettyHttpTelnetBootstrap) super.setHost(host);
     }
 
+    @Override
     public NettyHttpTelnetBootstrap setPort(int port) {
         return (NettyHttpTelnetBootstrap) super.setPort(port);
     }

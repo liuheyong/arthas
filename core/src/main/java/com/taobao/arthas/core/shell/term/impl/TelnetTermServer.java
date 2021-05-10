@@ -6,9 +6,7 @@ import com.taobao.arthas.core.shell.future.Future;
 import com.taobao.arthas.core.shell.handlers.Handler;
 import com.taobao.arthas.core.shell.term.Term;
 import com.taobao.arthas.core.shell.term.TermServer;
-import io.termd.core.function.Consumer;
 import io.termd.core.telnet.netty.NettyTelnetTtyBootstrap;
-import io.termd.core.tty.TtyConnection;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,16 +43,11 @@ public class TelnetTermServer extends TermServer {
         // TODO: charset and inputrc from options
         bootstrap = new NettyTelnetTtyBootstrap().setHost(hostIp).setPort(port);
         try {
-            bootstrap.start(new Consumer<TtyConnection>() {
-                @Override
-                public void accept(final TtyConnection conn) {
-                    termHandler.handle(new TermImpl(Helper.loadKeymap(), conn));
-                }
-            }).get(connectionTimeout, TimeUnit.MILLISECONDS);
-            listenHandler.handle(Future.<TermServer>succeededFuture());
+            bootstrap.start(conn -> termHandler.handle(new TermImpl(Helper.loadKeymap(), conn))).get(connectionTimeout, TimeUnit.MILLISECONDS);
+            listenHandler.handle(Future.succeededFuture());
         } catch (Throwable t) {
             logger.error("Error listening to port " + port, t);
-            listenHandler.handle(Future.<TermServer>failedFuture(t));
+            listenHandler.handle(Future.failedFuture(t));
         }
         return this;
     }
@@ -78,6 +71,7 @@ public class TelnetTermServer extends TermServer {
         }
     }
 
+    @Override
     public int actualPort() {
         return bootstrap.getPort();
     }

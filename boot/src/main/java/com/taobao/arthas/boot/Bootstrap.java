@@ -44,8 +44,8 @@ import static com.taobao.arthas.boot.ProcessUtils.STATUS_EXEC_TIMEOUT;
         + "  java -jar arthas-boot.jar --repo-mirror aliyun --use-http\n" + "WIKI:\n"
         + "  https://arthas.aliyun.com/doc\n")
 public class Bootstrap {
-    private static final int DEFAULT_TELNET_PORT = 3660;
-    private static final int DEFAULT_HTTP_PORT = 8566;
+    private static final int DEFAULT_TELNET_PORT = 3658;
+    private static final int DEFAULT_HTTP_PORT = 8563;
     private static final String DEFAULT_TARGET_IP = "127.0.0.1";
     private static File ARTHAS_LIB_DIR;
 
@@ -101,7 +101,7 @@ public class Bootstrap {
      */
     private boolean versions;
     /**
-     * download from remo repository. if timezone is +0800, default value is 'aliyun', else is 'center'.
+     * download from demo repository. if timezone is +0800, default value is 'aliyun', else is 'center'.
      */
     private String repoMirror;
     /**

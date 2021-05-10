@@ -33,51 +33,51 @@ import io.termd.core.tty.TtyConnection;
  */
 public class TtyWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-  private final ChannelGroup group;
-  private final Consumer<TtyConnection> handler;
-  private ChannelHandlerContext context;
-  private HttpTtyConnection conn;
+    private final ChannelGroup group;
+    private final Consumer<TtyConnection> handler;
+    private ChannelHandlerContext context;
+    private HttpTtyConnection conn;
 
-  public TtyWebSocketFrameHandler(ChannelGroup group, Consumer<TtyConnection> handler) {
-    this.group = group;
-    this.handler = handler;
-  }
-
-  @Override
-  public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    super.channelActive(ctx);
-    context = ctx;
-  }
-
-  @Override
-  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-    if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-      ctx.pipeline().remove(HttpRequestHandler.class);
-      group.add(ctx.channel());
-      conn = new ExtHttpTtyConnection(context);
-      handler.accept(conn);
-    } else if (evt instanceof IdleStateEvent) {
-      ctx.writeAndFlush(new PingWebSocketFrame());
-    } else {
-      super.userEventTriggered(ctx, evt);
+    public TtyWebSocketFrameHandler(ChannelGroup group, Consumer<TtyConnection> handler) {
+        this.group = group;
+        this.handler = handler;
     }
-  }
 
-  @Override
-  public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    HttpTtyConnection tmp = conn;
-    context = null;
-    conn = null;
-    if (tmp != null) {
-      Consumer<Void> closeHandler = tmp.getCloseHandler();
-      if (closeHandler != null) {
-        closeHandler.accept(null);
-      }
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        context = ctx;
     }
-  }
 
-  @Override
-  public void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-    conn.writeToDecoder(msg.text());
-  }
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
+            ctx.pipeline().remove(HttpRequestHandler.class);
+            group.add(ctx.channel());
+            conn = new ExtHttpTtyConnection(context);
+            handler.accept(conn);
+        } else if (evt instanceof IdleStateEvent) {
+            ctx.writeAndFlush(new PingWebSocketFrame());
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        HttpTtyConnection tmp = conn;
+        context = null;
+        conn = null;
+        if (tmp != null) {
+            Consumer<Void> closeHandler = tmp.getCloseHandler();
+            if (closeHandler != null) {
+                closeHandler.accept(null);
+            }
+        }
+    }
+
+    @Override
+    public void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
+        conn.writeToDecoder(msg.text());
+    }
 }

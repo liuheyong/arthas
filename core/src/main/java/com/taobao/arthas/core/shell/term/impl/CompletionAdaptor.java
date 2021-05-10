@@ -44,7 +44,7 @@ class CompletionAdaptor implements Completion {
     @Override
     public void complete(List<String> candidates) {
         String lastToken = tokens.isEmpty() ? null : tokens.get(tokens.size() - 1).value();
-        if(StringUtils.isBlank(lastToken)) {
+        if (StringUtils.isBlank(lastToken)) {
             lastToken = "";
         }
         if (candidates.size() > 1) {

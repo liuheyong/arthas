@@ -87,7 +87,6 @@ public class ProtocolDetectHandler extends ChannelInboundHandlerAdapter {
             channelGroup.add(ctx.channel());
             TelnetChannelHandler handler = new TelnetChannelHandler(handlerFactory);
             pipeline.addLast(handler);
-            ctx.fireChannelActive(); // trigger TelnetChannelHandler init
         } else {
             pipeline.addLast(new HttpServerCodec());
             pipeline.addLast(new ChunkedWriteHandler());
@@ -97,8 +96,8 @@ public class ProtocolDetectHandler extends ChannelInboundHandlerAdapter {
             pipeline.addLast(new WebSocketServerProtocolHandler(ArthasConstants.DEFAULT_WEBSOCKET_PATH, true));
             pipeline.addLast(new IdleStateHandler(0, 0, ArthasConstants.WEBSOCKET_IDLE_SECONDS));
             pipeline.addLast(new TtyWebSocketFrameHandler(channelGroup, ttyConnectionFactory));
-            ctx.fireChannelActive();
         }
+        ctx.fireChannelActive(); // trigger TelnetChannelHandler init
         pipeline.remove(this);
         ctx.fireChannelRead(in);
     }

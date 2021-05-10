@@ -1,10 +1,6 @@
 package com.alibaba.arthas;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author diecui1202 on 2017/9/13.
@@ -27,7 +23,7 @@ public class Test {
     public static void main(String[] args) throws InterruptedException {
         List<Pojo> list = new ArrayList<Pojo>();
 
-        for (int i = 0; i < 40; i ++) {
+        for (int i = 0; i < 40; i++) {
             Pojo pojo = new Pojo();
             pojo.setName("name " + i);
             pojo.setAge(i + 2);
@@ -51,7 +47,4 @@ public class Test {
         // do nothing
     }
 
-    public static void invoke(String a) {
-        System.out.println(a);
-    }
 }

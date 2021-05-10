@@ -25,7 +25,7 @@ public class ThreadSampler {
     private static HotspotThreadMBean hotspotThreadMBean;
     private static boolean hotspotThreadMBeanEnable = true;
 
-    private Map<ThreadVO, Long> lastCpuTimes = new HashMap<ThreadVO, Long>();
+    private Map<ThreadVO, Long> lastCpuTimes = new HashMap<>();
 
     private long lastSampleTimeNanos;
     private boolean includeInternalThreads = true;
@@ -59,18 +59,15 @@ public class ThreadSampler {
             }
 
             //sort by time
-            Collections.sort(threads, new Comparator<ThreadVO>() {
-                @Override
-                public int compare(ThreadVO o1, ThreadVO o2) {
-                    long l1 = o1.getTime();
-                    long l2 = o2.getTime();
-                    if (l1 < l2) {
-                        return 1;
-                    } else if (l1 > l2) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
+            Collections.sort(threads, (o1, o2) -> {
+                long l1 = o1.getTime();
+                long l2 = o2.getTime();
+                if (l1 < l2) {
+                    return 1;
+                } else if (l1 > l2) {
+                    return -1;
+                } else {
+                    return 0;
                 }
             });
             return threads;
@@ -96,7 +93,7 @@ public class ThreadSampler {
         }
 
         // Compute delta time
-        final Map<ThreadVO, Long> deltas = new HashMap<ThreadVO, Long>(threads.size());
+        final Map<ThreadVO, Long> deltas = new HashMap<>(threads.size());
         for (ThreadVO thread : newCpuTimes.keySet()) {
             Long t = lastCpuTimes.get(thread);
             if (t == null) {
@@ -123,17 +120,15 @@ public class ThreadSampler {
         }
 
         // Sort by CPU time : should be a rendering hint...
-        Collections.sort(threads, new Comparator<ThreadVO>() {
-            public int compare(ThreadVO o1, ThreadVO o2) {
-                long l1 = deltas.get(o1);
-                long l2 = deltas.get(o2);
-                if (l1 < l2) {
-                    return 1;
-                } else if (l1 > l2) {
-                    return -1;
-                } else {
-                    return 0;
-                }
+        Collections.sort(threads, (o1, o2) -> {
+            long l1 = deltas.get(o1);
+            long l2 = deltas.get(o2);
+            if (l1 < l2) {
+                return 1;
+            } else if (l1 > l2) {
+                return -1;
+            } else {
+                return 0;
             }
         });
 

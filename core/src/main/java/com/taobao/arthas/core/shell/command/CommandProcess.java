@@ -43,6 +43,7 @@ public interface CommandProcess extends Tty {
      */
     boolean isForeground();
 
+    @Override
     CommandProcess stdinHandler(Handler<String> handler);
 
     /**

@@ -1,9 +1,6 @@
 package com.taobao.arthas.core.shell.term.impl.httptelnet;
 
-import java.nio.charset.Charset;
-
 import com.taobao.arthas.core.shell.term.impl.http.session.HttpSessionManager;
-
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.termd.core.function.Consumer;
 import io.termd.core.function.Supplier;
@@ -12,6 +9,8 @@ import io.termd.core.telnet.TelnetTtyConnection;
 import io.termd.core.tty.TtyConnection;
 import io.termd.core.util.CompletableFuture;
 import io.termd.core.util.Helper;
+
+import java.nio.charset.Charset;
 
 /**
  * @author <a href="mailto:julien@julienviet.com">Julien Viet</a>
@@ -53,8 +52,7 @@ public class NettyHttpTelnetTtyBootstrap {
     /**
      * Enable or disable the TELNET BINARY option on output.
      *
-     * @param outBinary
-     *            true to require the client to receive binary
+     * @param outBinary true to require the client to receive binary
      * @return this object
      */
     public NettyHttpTelnetTtyBootstrap setOutBinary(boolean outBinary) {
@@ -69,8 +67,7 @@ public class NettyHttpTelnetTtyBootstrap {
     /**
      * Enable or disable the TELNET BINARY option on input.
      *
-     * @param inBinary
-     *            true to require the client to emit binary
+     * @param inBinary true to require the client to emit binary
      * @return this object
      */
     public NettyHttpTelnetTtyBootstrap setInBinary(boolean inBinary) {

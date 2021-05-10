@@ -253,10 +253,12 @@ public class ShellServerImpl extends ShellServer {
         }
     }
 
+    @Override
     public JobControllerImpl getJobController() {
         return jobController;
     }
 
+    @Override
     public InternalCommandManager getCommandManager() {
         return commandManager;
     }
