@@ -6,13 +6,7 @@ import sun.management.ManagementFactoryHelper;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Thread cpu sampler
@@ -30,10 +24,9 @@ public class ThreadSampler {
     private long lastSampleTimeNanos;
     private boolean includeInternalThreads = true;
 
-
     public List<ThreadVO> sample(Collection<ThreadVO> originThreads) {
 
-        List<ThreadVO> threads = new ArrayList<ThreadVO>(originThreads);
+        List<ThreadVO> threads = new ArrayList<>(originThreads);
 
         // Sample CPU
         if (lastCpuTimes.isEmpty()) {

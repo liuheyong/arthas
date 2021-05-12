@@ -27,7 +27,6 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -82,8 +81,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-             <!-- 把原来的logger command相关类还原，因为被shade plugin relocation修改了package -->
+            <!-- 把原来的logger command相关类还原，因为被shade plugin relocation修改了package -->
             <!--<plugin>-->
             <!--    <artifactId>maven-antrun-plugin</artifactId>-->
             <!--    <executions>-->
@@ -255,7 +253,5 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
-
     </dependencies>
-
 </project>
