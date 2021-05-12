@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 
 import com.taobao.arthas.agent.ArthasClassloader;
@@ -186,10 +187,6 @@ public class AgentBootstrap {
     }
 
     private static String decodeArg(String arg) {
-        try {
-            return URLDecoder.decode(arg, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            return arg;
-        }
+        return URLDecoder.decode(arg, StandardCharsets.UTF_8);
     }
 }
