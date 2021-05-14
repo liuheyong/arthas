@@ -44,14 +44,14 @@ import static com.taobao.arthas.boot.ProcessUtils.STATUS_EXEC_TIMEOUT;
         + "  java -jar arthas-boot.jar --repo-mirror aliyun --use-http\n" + "WIKI:\n"
         + "  https://arthas.aliyun.com/doc\n")
 public class Bootstrap {
-    private static final int DEFAULT_TELNET_PORT = 3658;
-    private static final int DEFAULT_HTTP_PORT = 8563;
+
+    private static final int DEFAULT_TELNET_PORT = 4658;
+    private static final int DEFAULT_HTTP_PORT = 9563;
     private static final String DEFAULT_TARGET_IP = "127.0.0.1";
     private static File ARTHAS_LIB_DIR;
 
     static {
-        ARTHAS_LIB_DIR = new File(
-                System.getProperty("user.home") + File.separator + ".arthas" + File.separator + "lib");
+        ARTHAS_LIB_DIR = new File(System.getProperty("user.home") + File.separator + ".arthas" + File.separator + "lib");
         try {
             ARTHAS_LIB_DIR.mkdirs();
         } catch (Throwable t) {
@@ -231,7 +231,7 @@ public class Bootstrap {
             arthasHomeDir = specialVersionDir;
         }
 
-        // Try set the directory where arthas-boot.jar is located to arhtas home
+        // Try set the directory where arthas-boot.jar is located to arthas home
         if (arthasHomeDir == null) {
             CodeSource codeSource = Bootstrap.class.getProtectionDomain().getCodeSource();
             if (codeSource != null) {
@@ -442,7 +442,6 @@ public class Bootstrap {
         // telnet port ,ip
         telnetArgs.add("127.0.0.1");
         telnetArgs.add("" + telnetPort);
-
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
             String error = null;

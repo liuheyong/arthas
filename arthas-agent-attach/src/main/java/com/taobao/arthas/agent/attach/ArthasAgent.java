@@ -1,5 +1,8 @@
 package com.taobao.arthas.agent.attach;
 
+import net.bytebuddy.agent.ByteBuddyAgent;
+import org.zeroturnaround.zip.ZipUtil;
+
 import java.arthas.SpyAPI;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -7,16 +10,11 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.zeroturnaround.zip.ZipUtil;
-
-import net.bytebuddy.agent.ByteBuddyAgent;
-
 /**
- * 
  * @author hengyunabc 2020-06-22
- *
  */
 public class ArthasAgent {
+
     private static final int TEMP_DIR_ATTEMPTS = 10000;
 
     private static final String ARTHAS_CORE_JAR = "arthas-core.jar";
@@ -44,7 +42,7 @@ public class ArthasAgent {
     }
 
     public ArthasAgent(Map<String, String> configMap, String arthasHome, boolean slientInit,
-            Instrumentation instrumentation) {
+                       Instrumentation instrumentation) {
         if (configMap != null) {
             this.configMap = configMap;
         }
@@ -59,8 +57,8 @@ public class ArthasAgent {
     }
 
     /**
-     * @see https://arthas.aliyun.com/doc/arthas-properties.html
      * @param configMap
+     * @see https://arthas.aliyun.com/doc/arthas-properties.html
      */
     public static void attach(Map<String, String> configMap) {
         new ArthasAgent(configMap).init();
@@ -68,10 +66,25 @@ public class ArthasAgent {
 
     /**
      * use the specified arthas
+     *
      * @param arthasHome arthas directory
      */
     public static void attach(String arthasHome) {
         new ArthasAgent().init();
+    }
+
+    private static File createTempDir() {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        String baseName = "arthas-" + System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IllegalStateException("Failed to create directory within " + TEMP_DIR_ATTEMPTS + " attempts (tried "
+                + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
     }
 
     public void init() throws IllegalStateException {
@@ -110,7 +123,7 @@ public class ArthasAgent {
                 throw new IllegalStateException("can not find arthas-core.jar under arthasHome: " + arthasHome);
             }
             AttachArthasClassloader arthasClassLoader = new AttachArthasClassloader(
-                    new URL[] { arthasCoreJarFile.toURI().toURL() });
+                    new URL[]{arthasCoreJarFile.toURI().toURL()});
 
             /**
              * <pre>
@@ -131,20 +144,6 @@ public class ArthasAgent {
                 throw new IllegalStateException(e);
             }
         }
-    }
-
-    private static File createTempDir() {
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
-        String baseName = "arthas-" + System.currentTimeMillis() + "-";
-
-        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-            File tempDir = new File(baseDir, baseName + counter);
-            if (tempDir.mkdir()) {
-                return tempDir;
-            }
-        }
-        throw new IllegalStateException("Failed to create directory within " + TEMP_DIR_ATTEMPTS + " attempts (tried "
-                + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
     }
 
     public String getErrorMessage() {

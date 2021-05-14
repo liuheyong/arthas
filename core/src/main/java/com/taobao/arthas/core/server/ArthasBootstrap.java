@@ -1,28 +1,5 @@
 package com.taobao.arthas.core.server;
 
-import java.arthas.SpyAPI;
-import java.io.File;
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
-import java.lang.reflect.Method;
-import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.jar.JarFile;
-
 import com.alibaba.arthas.deps.ch.qos.logback.classic.LoggerContext;
 import com.alibaba.arthas.deps.org.slf4j.Logger;
 import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
@@ -66,18 +43,29 @@ import com.taobao.arthas.core.shell.term.impl.HttpTermServer;
 import com.taobao.arthas.core.shell.term.impl.http.api.HttpApiHandler;
 import com.taobao.arthas.core.shell.term.impl.http.session.HttpSessionManager;
 import com.taobao.arthas.core.shell.term.impl.httptelnet.HttpTelnetTermServer;
-import com.taobao.arthas.core.util.ArthasBanner;
-import com.taobao.arthas.core.util.FileUtils;
-import com.taobao.arthas.core.util.InstrumentationUtils;
-import com.taobao.arthas.core.util.LogUtil;
-import com.taobao.arthas.core.util.UserStatUtil;
+import com.taobao.arthas.core.util.*;
 import com.taobao.arthas.core.util.affect.EnhancerAffect;
 import com.taobao.arthas.core.util.matcher.WildcardMatcher;
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
+
+import java.arthas.SpyAPI;
+import java.io.File;
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.Method;
+import java.security.CodeSource;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.JarFile;
 
 
 /**
@@ -85,19 +73,17 @@ import io.netty.util.concurrent.EventExecutorGroup;
  * @author hengyunabc
  */
 public class ArthasBootstrap {
-    private static final String ARTHAS_SPY_JAR = "arthas-spy.jar";
-    public static final String ARTHAS_HOME_PROPERTY = "arthas.home";
-    private static String ARTHAS_HOME = null;
 
+    public static final String ARTHAS_HOME_PROPERTY = "arthas.home";
     public static final String CONFIG_NAME_PROPERTY = "arthas.config.name";
     public static final String CONFIG_LOCATION_PROPERTY = "arthas.config.location";
     public static final String CONFIG_OVERRIDE_ALL = "arthas.config.overrideAll";
-
+    private static final String ARTHAS_SPY_JAR = "arthas-spy.jar";
+    private static String ARTHAS_HOME = null;
     private static ArthasBootstrap arthasBootstrap;
-
+    private static LoggerContext loggerContext;
     private ArthasEnvironment arthasEnvironment;
     private Configure configure;
-
     private AtomicBoolean isBindRef = new AtomicBoolean(false);
     private Instrumentation instrumentation;
     private InstrumentTransformer classLoaderInstrumentTransformer;
@@ -106,10 +92,7 @@ public class ArthasBootstrap {
     private ScheduledExecutorService executorService;
     private SessionManager sessionManager;
     private TunnelClient tunnelClient;
-
     private File outputPath;
-
-    private static LoggerContext loggerContext;
     private EventExecutorGroup workerGroup;
 
     private Timer timer = new Timer("arthas-timer", true);
@@ -174,6 +157,69 @@ public class ArthasBootstrap {
         Runtime.getRuntime().addShutdownHook(shutdown);
     }
 
+    private static String arthasHome() {
+        if (ARTHAS_HOME != null) {
+            return ARTHAS_HOME;
+        }
+        CodeSource codeSource = ArthasBootstrap.class.getProtectionDomain().getCodeSource();
+        if (codeSource != null) {
+            try {
+                ARTHAS_HOME = new File(codeSource.getLocation().toURI().getSchemeSpecificPart()).getParentFile().getAbsolutePath();
+            } catch (Throwable e) {
+                AnsiLog.error("try to find arthas.home from CodeSource error", e);
+            }
+        }
+        if (ARTHAS_HOME == null) {
+            ARTHAS_HOME = new File("").getAbsolutePath();
+        }
+        return ARTHAS_HOME;
+    }
+
+    /**
+     * 单例
+     *
+     * @param instrumentation JVM增强
+     * @return ArthasServer单例
+     * @throws Throwable
+     */
+    public synchronized static ArthasBootstrap getInstance(Instrumentation instrumentation, String args) throws Throwable {
+        if (arthasBootstrap != null) {
+            return arthasBootstrap;
+        }
+
+        Map<String, String> argsMap = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(args);
+        // 给配置全加上前缀
+        Map<String, String> mapWithPrefix = new HashMap<String, String>(argsMap.size());
+        for (Entry<String, String> entry : argsMap.entrySet()) {
+            mapWithPrefix.put("arthas." + entry.getKey(), entry.getValue());
+        }
+        return getInstance(instrumentation, mapWithPrefix);
+    }
+
+    /**
+     * 单例
+     *
+     * @param instrumentation JVM增强
+     * @return ArthasServer单例
+     * @throws Throwable
+     */
+    public synchronized static ArthasBootstrap getInstance(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
+        if (arthasBootstrap == null) {
+            arthasBootstrap = new ArthasBootstrap(instrumentation, args);
+        }
+        return arthasBootstrap;
+    }
+
+    /**
+     * @return ArthasServer单例
+     */
+    public static ArthasBootstrap getInstance() {
+        if (arthasBootstrap == null) {
+            throw new IllegalStateException("ArthasBootstrap must be initialized before!");
+        }
+        return arthasBootstrap;
+    }
+
     private void initFastjson() {
         // disable  fastjson circular reference feature
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();
@@ -196,7 +242,7 @@ public class ArthasBootstrap {
         Class<?> spyClass = null;
         if (parent != null) {
             try {
-                spyClass =parent.loadClass("java.arthas.SpyAPI");
+                spyClass = parent.loadClass("java.arthas.SpyAPI");
             } catch (Throwable e) {
                 // ignore
             }
@@ -242,7 +288,7 @@ public class ArthasBootstrap {
             InstrumentationUtils.trigerRetransformClasses(instrumentation, loaders);
         }
     }
-    
+
     private void initArthasEnvironment(Map<String, String> argsMap) throws IOException {
         if (arthasEnvironment == null) {
             arthasEnvironment = new ArthasEnvironment();
@@ -264,31 +310,13 @@ public class ArthasBootstrap {
             copyMap.put(ARTHAS_HOME_PROPERTY, arthasHome());
         }
 
-        MapPropertySource mapPropertySource = new MapPropertySource("args", (Map<String, Object>)(Object)copyMap);
+        MapPropertySource mapPropertySource = new MapPropertySource("args", (Map<String, Object>) (Object) copyMap);
         arthasEnvironment.addFirst(mapPropertySource);
 
         tryToLoadArthasProperties();
 
         configure = new Configure();
         BinderUtils.inject(arthasEnvironment, configure);
-    }
-
-    private static String arthasHome() {
-        if (ARTHAS_HOME != null) {
-            return ARTHAS_HOME;
-        }
-        CodeSource codeSource = ArthasBootstrap.class.getProtectionDomain().getCodeSource();
-        if (codeSource != null) {
-            try {
-                ARTHAS_HOME = new File(codeSource.getLocation().toURI().getSchemeSpecificPart()).getParentFile().getAbsolutePath();
-            } catch (Throwable e) {
-                AnsiLog.error("try to find arthas.home from CodeSource error", e);
-            }
-        }
-        if (ARTHAS_HOME == null) {
-            ARTHAS_HOME = new File("").getAbsolutePath();
-        }
-        return ARTHAS_HOME;
     }
 
     // try to load arthas.properties
@@ -382,9 +410,9 @@ public class ArthasBootstrap {
 
         try {
             ShellServerOptions options = new ShellServerOptions()
-                            .setInstrumentation(instrumentation)
-                            .setPid(PidUtils.currentLongPid())
-                            .setWelcomeMessage(ArthasBanner.welcome());
+                    .setInstrumentation(instrumentation)
+                    .setPid(PidUtils.currentLongPid())
+                    .setWelcomeMessage(ArthasBanner.welcome());
             if (configure.getSessionTimeout() != null) {
                 options.setSessionTimeout(configure.getSessionTimeout() * 1000);
             }
@@ -530,51 +558,6 @@ public class ArthasBootstrap {
         if (loggerContext != null) {
             loggerContext.stop();
         }
-    }
-
-    /**
-     * 单例
-     *
-     * @param instrumentation JVM增强
-     * @return ArthasServer单例
-     * @throws Throwable
-     */
-    public synchronized static ArthasBootstrap getInstance(Instrumentation instrumentation, String args) throws Throwable {
-        if (arthasBootstrap != null) {
-            return arthasBootstrap;
-        }
-
-        Map<String, String> argsMap = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(args);
-        // 给配置全加上前缀
-        Map<String, String> mapWithPrefix = new HashMap<String, String>(argsMap.size());
-        for (Entry<String, String> entry : argsMap.entrySet()) {
-            mapWithPrefix.put("arthas." + entry.getKey(), entry.getValue());
-        }
-        return getInstance(instrumentation, mapWithPrefix);
-    }
-
-    /**
-     * 单例
-     *
-     * @param instrumentation JVM增强
-     * @return ArthasServer单例
-     * @throws Throwable
-     */
-    public synchronized static ArthasBootstrap getInstance(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
-        if (arthasBootstrap == null) {
-            arthasBootstrap = new ArthasBootstrap(instrumentation, args);
-        }
-        return arthasBootstrap;
-    }
-
-    /**
-     * @return ArthasServer单例
-     */
-    public static ArthasBootstrap getInstance() {
-        if (arthasBootstrap == null) {
-            throw new IllegalStateException("ArthasBootstrap must be initialized before!");
-        }
-        return arthasBootstrap;
     }
 
     public void execute(Runnable command) {

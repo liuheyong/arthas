@@ -1,17 +1,16 @@
 package com.taobao.arthas.agent334;
 
+import com.taobao.arthas.agent.ArthasClassloader;
+
 import java.arthas.SpyAPI;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
-
-import com.taobao.arthas.agent.ArthasClassloader;
 
 /**
  * 代理启动类
@@ -19,12 +18,22 @@ import com.taobao.arthas.agent.ArthasClassloader;
  * @author vlinux on 15/5/19.
  */
 public class AgentBootstrap {
+
     private static final String ARTHAS_CORE_JAR = "arthas-core.jar";
     private static final String ARTHAS_BOOTSTRAP = "com.taobao.arthas.core.server.ArthasBootstrap";
     private static final String GET_INSTANCE = "getInstance";
     private static final String IS_BIND = "isBind";
 
     private static PrintStream ps = System.err;
+    /**
+     * <pre>
+     * 1. 全局持有classloader用于隔离 Arthas 实现，防止多次attach重复初始化
+     * 2. ClassLoader在arthas停止时会被reset
+     * 3. 如果ClassLoader一直没变，则 com.taobao.arthas.core.server.ArthasBootstrap#getInstance 返回结果一直是一样的
+     * </pre>
+     */
+    private static volatile ClassLoader arthasClassLoader;
+
     static {
         try {
             File arthasLogDir = new File(System.getProperty("user.home") + File.separator + "logs" + File.separator
@@ -51,15 +60,6 @@ public class AgentBootstrap {
             t.printStackTrace(ps);
         }
     }
-
-    /**
-     * <pre>
-     * 1. 全局持有classloader用于隔离 Arthas 实现，防止多次attach重复初始化
-     * 2. ClassLoader在arthas停止时会被reset
-     * 3. 如果ClassLoader一直没变，则 com.taobao.arthas.core.server.ArthasBootstrap#getInstance 返回结果一直是一样的
-     * </pre>
-     */
-    private static volatile ClassLoader arthasClassLoader;
 
     public static void premain(String args, Instrumentation inst) {
         main(args, inst);
@@ -102,7 +102,8 @@ public class AgentBootstrap {
         }
         try {
             ps.println("Arthas server agent start...");
-            // 传递的args参数分两个部分:arthasCoreJar路径和agentArgs, 分别是Agent的JAR包路径和期望传递到服务端的参数
+            // 传递的args参数分两个部分:arthasCoreJar路径和agentArgs,
+            // 分别是Agent的JAR包路径和期望传递到服务端的参数
             if (args == null) {
                 args = "";
             }
@@ -141,11 +142,11 @@ public class AgentBootstrap {
                 return;
             }
 
-            /**
-             * Use a dedicated thread to run the binding logic to prevent possible memory leak. #195
-             */
             final ClassLoader agentLoader = getClassLoader(inst, arthasCoreJarFile);
 
+            /**
+             * 使用专用线程运行绑定逻辑，以防止可能的内存泄漏。. #195
+             */
             Thread bindingThread = new Thread(() -> {
                 try {
                     bind(inst, agentLoader, agentArgs);

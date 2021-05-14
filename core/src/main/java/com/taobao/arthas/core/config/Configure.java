@@ -56,9 +56,29 @@ public class Configure {
 
     /**
      * session timeout seconds
+     *
      * @see ShellServerOptions#DEFAULT_SESSION_TIMEOUT
      */
     private Long sessionTimeout;
+
+    /**
+     * 反序列化字符串成对象
+     *
+     * @param toString 序列化字符串
+     * @return 反序列化的对象
+     */
+    public static Configure toConfigure(String toString) throws IllegalAccessException {
+        final Configure configure = new Configure();
+        final Map<String, String> map = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(toString);
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            final Field field = ArthasReflectUtils.getField(Configure.class, entry.getKey());
+            if (null != field && !isStatic(field.getModifiers())) {
+                ArthasReflectUtils.set(field, ArthasReflectUtils.valueOf(field.getType(), entry.getValue()), configure);
+            }
+        }
+        return configure;
+    }
 
     public String getIp() {
         return ip;
@@ -76,12 +96,12 @@ public class Configure {
         this.telnetPort = telnetPort;
     }
 
-    public void setHttpPort(int httpPort) {
-        this.httpPort = httpPort;
-    }
-
     public Integer getHttpPort() {
         return httpPort;
+    }
+
+    public void setHttpPort(int httpPort) {
+        this.httpPort = httpPort;
     }
 
     public long getJavaPid() {
@@ -209,25 +229,6 @@ public class Configure {
         }
 
         return FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toString(map);
-    }
-
-    /**
-     * 反序列化字符串成对象
-     *
-     * @param toString 序列化字符串
-     * @return 反序列化的对象
-     */
-    public static Configure toConfigure(String toString) throws IllegalAccessException {
-        final Configure configure = new Configure();
-        final Map<String, String> map = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(toString);
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            final Field field = ArthasReflectUtils.getField(Configure.class, entry.getKey());
-            if (null != field && !isStatic(field.getModifiers())) {
-                ArthasReflectUtils.set(field, ArthasReflectUtils.valueOf(field.getType(), entry.getValue()), configure);
-            }
-        }
-        return configure;
     }
 
 }

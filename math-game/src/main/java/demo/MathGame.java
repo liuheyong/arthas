@@ -18,17 +18,6 @@ public class MathGame {
         }
     }
 
-    public void run() throws InterruptedException {
-        try {
-            int number = random.nextInt()/10000;
-            List<Integer> primeFactors = primeFactors(number);
-            print(number, primeFactors);
-
-        } catch (Exception e) {
-            System.out.println(String.format("illegalArgumentCount:%3d, ", illegalArgumentCount) + e.getMessage());
-        }
-    }
-
     public static void print(int number, List<Integer> primeFactors) {
         StringBuffer sb = new StringBuffer(number + "=");
         for (int factor : primeFactors) {
@@ -40,13 +29,23 @@ public class MathGame {
         System.out.println(sb);
     }
 
+    public void run() {
+        try {
+            int number = random.nextInt() / 10000;
+            List<Integer> primeFactors = primeFactors(number);
+            print(number, primeFactors);
+
+        } catch (Exception e) {
+            System.out.println(String.format("illegalArgumentCount:%3d, ", illegalArgumentCount) + e.getMessage());
+        }
+    }
+
     public List<Integer> primeFactors(int number) {
         if (number < 2) {
             illegalArgumentCount++;
             throw new IllegalArgumentException("number is: " + number + ", need >= 2");
         }
-
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
         int i = 2;
         while (i <= number) {
             if (number % i == 0) {
@@ -57,7 +56,6 @@ public class MathGame {
                 i++;
             }
         }
-
         return result;
     }
 }

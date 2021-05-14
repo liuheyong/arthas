@@ -4,11 +4,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * 
  * @author hengyunabc 2020-06-22
- *
  */
 public class AttachArthasClassloader extends URLClassLoader {
+
     public AttachArthasClassloader(URL[] urls) {
         super(urls, ClassLoader.getSystemClassLoader().getParent());
     }
