@@ -45,8 +45,8 @@ import static com.taobao.arthas.boot.ProcessUtils.STATUS_EXEC_TIMEOUT;
         + "  https://arthas.aliyun.com/doc\n")
 public class Bootstrap {
 
-    private static final int DEFAULT_TELNET_PORT = 4658;
-    private static final int DEFAULT_HTTP_PORT = 9563;
+    private static final int DEFAULT_TELNET_PORT = 3658;
+    private static final int DEFAULT_HTTP_PORT = 8563;
     private static final String DEFAULT_TARGET_IP = "127.0.0.1";
     private static File ARTHAS_LIB_DIR;
 
