@@ -1,20 +1,10 @@
 package com.taobao.arthas.compiler;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
+import javax.tools.*;
+import java.util.*;
 
 public class DynamicCompiler {
+
     private final JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
     private final StandardJavaFileManager standardFileManager;
     private final List<String> options = new ArrayList<String>();
@@ -27,8 +17,8 @@ public class DynamicCompiler {
     public DynamicCompiler(ClassLoader classLoader) {
         if (javaCompiler == null) {
             throw new IllegalStateException(
-                            "Can not load JavaCompiler from javax.tools.ToolProvider#getSystemJavaCompiler(),"
-                                            + " please confirm the application running in JDK not JRE.");
+                    "Can not load JavaCompiler from javax.tools.ToolProvider#getSystemJavaCompiler(),"
+                            + " please confirm the application running in JDK not JRE.");
         }
         standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
 
@@ -53,7 +43,7 @@ public class DynamicCompiler {
 
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<JavaFileObject>();
         JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null,
-                        compilationUnits);
+                compilationUnits);
 
         try {
 
@@ -64,16 +54,16 @@ public class DynamicCompiler {
 
                     for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {
                         switch (diagnostic.getKind()) {
-                        case NOTE:
-                        case MANDATORY_WARNING:
-                        case WARNING:
-                            warnings.add(diagnostic);
-                            break;
-                        case OTHER:
-                        case ERROR:
-                        default:
-                            errors.add(diagnostic);
-                            break;
+                            case NOTE:
+                            case MANDATORY_WARNING:
+                            case WARNING:
+                                warnings.add(diagnostic);
+                                break;
+                            case OTHER:
+                            case ERROR:
+                            default:
+                                errors.add(diagnostic);
+                                break;
                         }
 
                     }
@@ -103,7 +93,7 @@ public class DynamicCompiler {
 
         DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<JavaFileObject>();
         JavaCompiler.CompilationTask task = javaCompiler.getTask(null, fileManager, collector, options, null,
-                        compilationUnits);
+                compilationUnits);
 
         try {
 
@@ -114,16 +104,16 @@ public class DynamicCompiler {
 
                     for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {
                         switch (diagnostic.getKind()) {
-                        case NOTE:
-                        case MANDATORY_WARNING:
-                        case WARNING:
-                            warnings.add(diagnostic);
-                            break;
-                        case OTHER:
-                        case ERROR:
-                        default:
-                            errors.add(diagnostic);
-                            break;
+                            case NOTE:
+                            case MANDATORY_WARNING:
+                            case WARNING:
+                                warnings.add(diagnostic);
+                                break;
+                            case OTHER:
+                            case ERROR:
+                            default:
+                                errors.add(diagnostic);
+                                break;
                         }
 
                     }
@@ -150,7 +140,7 @@ public class DynamicCompiler {
 
         for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
             diagnosticMessages.add(
-                            "line: " + diagnostic.getLineNumber() + ", message: " + diagnostic.getMessage(Locale.US));
+                    "line: " + diagnostic.getLineNumber() + ", message: " + diagnostic.getMessage(Locale.US));
         }
 
         return diagnosticMessages;

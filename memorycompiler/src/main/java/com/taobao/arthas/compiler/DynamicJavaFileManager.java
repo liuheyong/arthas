@@ -1,21 +1,16 @@
 package com.taobao.arthas.compiler;
 
+import javax.tools.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
-
 public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-    private static final String[] superLocationNames = { StandardLocation.PLATFORM_CLASS_PATH.name(),
-            /** JPMS StandardLocation.SYSTEM_MODULES **/
-            "SYSTEM_MODULES" };
+
+    private static final String[] superLocationNames = {StandardLocation.PLATFORM_CLASS_PATH.name(),
+            "SYSTEM_MODULES"};
     private final PackageInternalsFinder finder;
 
     private final DynamicClassLoader classLoader;
@@ -30,7 +25,7 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
 
     @Override
     public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className,
-                    JavaFileObject.Kind kind, FileObject sibling) throws IOException {
+                                               JavaFileObject.Kind kind, FileObject sibling) throws IOException {
 
         for (MemoryByteCode byteCode : byteCodes) {
             if (byteCode.getClassName().equals(className)) {

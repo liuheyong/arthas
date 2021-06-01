@@ -21,10 +21,9 @@ public class ExecutingCommand {
     /**
      * Executes a command on the native command line and returns the result.
      *
-     * @param cmdToRun
-     *            Command to run
+     * @param cmdToRun Command to run
      * @return A list of Strings representing the result of the command, or empty
-     *         string if the command failed
+     * string if the command failed
      */
     public static List<String> runNative(String cmdToRun) {
         String[] cmd = cmdToRun.split(" ");
@@ -35,23 +34,18 @@ public class ExecutingCommand {
      * Executes a command on the native command line and returns the result line by
      * line.
      *
-     * @param cmdToRunWithArgs
-     *            Command to run and args, in an array
+     * @param cmdToRunWithArgs Command to run and args, in an array
      * @return A list of Strings representing the result of the command, or empty
-     *         string if the command failed
+     * string if the command failed
      */
     public static List<String> runNative(String[] cmdToRunWithArgs) {
-        Process p = null;
+        Process p;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs);
-        } catch (SecurityException e) {
+        } catch (SecurityException | IOException e) {
             AnsiLog.trace("Couldn't run command {}:", Arrays.toString(cmdToRunWithArgs));
             AnsiLog.trace(e);
-            return new ArrayList<String>(0);
-        } catch (IOException e) {
-            AnsiLog.trace("Couldn't run command {}:", Arrays.toString(cmdToRunWithArgs));
-            AnsiLog.trace(e);
-            return new ArrayList<String>(0);
+            return new ArrayList<>(0);
         }
 
         ArrayList<String> sa = new ArrayList<String>();
@@ -79,8 +73,7 @@ public class ExecutingCommand {
     /**
      * Return first line of response for selected command.
      *
-     * @param cmd2launch
-     *            String command to be launched
+     * @param cmd2launch String command to be launched
      * @return String or empty string if command failed
      */
     public static String getFirstAnswer(String cmd2launch) {
@@ -91,12 +84,10 @@ public class ExecutingCommand {
      * Return response on selected line index (0-based) after running selected
      * command.
      *
-     * @param cmd2launch
-     *            String command to be launched
-     * @param answerIdx
-     *            int index of line in response of the command
+     * @param cmd2launch String command to be launched
+     * @param answerIdx  int index of line in response of the command
      * @return String whole line in response or empty string if invalid index or
-     *         running of command fails
+     * running of command fails
      */
     public static String getAnswerAt(String cmd2launch, int answerIdx) {
         List<String> sa = ExecutingCommand.runNative(cmd2launch);

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 
 public class StringSource extends SimpleJavaFileObject {
+
     private final String contents;
 
     public StringSource(String className, String contents) {

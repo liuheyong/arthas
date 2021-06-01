@@ -33,8 +33,9 @@ import java.util.List;
 import java.util.jar.JarEntry;
 
 public class PackageInternalsFinder {
-    private final ClassLoader classLoader;
+
     private static final String CLASS_FILE_EXTENSION = ".class";
+    private final ClassLoader classLoader;
 
     public PackageInternalsFinder(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -94,6 +95,7 @@ public class PackageInternalsFinder {
         List<JavaFileObject> result = new ArrayList<JavaFileObject>();
 
         File[] childFiles = directory.listFiles();
+        assert childFiles != null;
         for (File childFile : childFiles) {
             if (childFile.isFile()) {
                 // We only want the .class files.
